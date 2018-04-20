@@ -5,7 +5,7 @@
 <body>
     <style>
         table {
-            width: 100%;
+            width: 50%;
             border-collapse: collapse;
         }
 
@@ -24,6 +24,7 @@
             text-align: left;
             border-collapse: collapse;
             border: 1px solid black;
+            text-align: center;
         }
 
         caption {
@@ -54,17 +55,18 @@
 
                 table.append("caption")
                     .html("World Countries Ranking");
-
+                
+                console.log(Object.keys(data[0]));
+                
                 thead.append("tr").selectAll("th")
-                    .data(Object.keys(data[0]))
+                    .data(myTable)
                     .enter()
                     .append("th")
                     .text(function (d) {
-                        if (myTable.indexOf(d) != -1) {
-                            return d;
-                        }
+                        return d;
                     })
                     .on("click", function (header, i) {
+                        console.log(header);
 
                         tbody.selectAll("tr").sort(function (a, b) {
                             if (switching === true) {
@@ -72,32 +74,37 @@
                             } else if (switching === false) {
                                 return d3.descending(a[header], b[header]);
                             }
-
                         });
                         switching = !switching;
                     });
 
-                var rows = tbody.selectAll("tr.row")
+                let rows = tbody.selectAll("tr.row")
                     .data(data)
                     .enter()
                     .append("tr").attr("class", "row");
 
-                var cells = rows.selectAll("td")
+                let cells = rows.selectAll("td")
                     .data(function (row) {
-                        return d3.range(Object.keys(row).length).map(function (column, i) {
-                            if (myTable.indexOf(Object.keys(row)[i]) != -1) {
+                        
+                        console.log(myTable);
+                        
+                        return d3.range(myTable.length).map(function (column, i) {
+                            if (myTable.indexOf(myTable[i]) != -1) {
 
-                                if (Object.keys(row)[i] === "life_expectancy") {
-                                    return Math.ceil(row[Object.keys(row)[i]]);
-                                } else if (Object.keys(row)[i] === "gdp") {
-                                    return Math.round(row[Object.keys(row)[i]] / 1000000000) + "G";
-                                } else if (Object.keys(row)[i] === "population") {
-                                    return row[Object.keys(row)[i]].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                if (myTable[i] === "life_expectancy") {
+                                    return Math.ceil(row[myTable[i]]);
+                                } else if (myTable[i] === "gdp") {
+                                    if (row[myTable[i]] > 1000000000000) {
+                                        return Math.round(row[myTable[i]] / 1000000000000) + "T";
+                                    } else {
+                                        return Math.round(row[myTable[i]] / 1000000000) + "G";
+                                    }
+                                } else if (myTable[i] === "population") {
+                                    return row[myTable[i]].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                                 }
 
-                                return row[Object.keys(row)[i]];
+                                return row[myTable[i]];
                             }
-
                         });
                     })
                     .enter()
