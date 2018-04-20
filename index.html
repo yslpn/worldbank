@@ -55,9 +55,7 @@
 
                 table.append("caption")
                     .html("World Countries Ranking");
-                
-                console.log(Object.keys(data[0]));
-                
+
                 thead.append("tr").selectAll("th")
                     .data(myTable)
                     .enter()
@@ -85,9 +83,7 @@
 
                 let cells = rows.selectAll("td")
                     .data(function (row) {
-                        
-                        console.log(myTable);
-                        
+
                         return d3.range(myTable.length).map(function (column, i) {
                             if (myTable.indexOf(myTable[i]) != -1) {
 
