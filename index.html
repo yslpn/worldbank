@@ -15,13 +15,25 @@
 
         th {
             background: white;
-            cursor: ns-resize;
+            cursor: pointer;
         }
 
         td,
         th {
             padding: 5px;
             text-align: left;
+            border-collapse: collapse;
+            border: 1px solid black;
+        }
+
+        caption {
+            border: solid black;
+            border-width: 1px 1px 0px;
+        }
+
+        th:empty,
+        td:empty {
+            display: none;
         }
     </style>
 
@@ -53,17 +65,14 @@
                         }
                     })
                     .on("click", function (header, i) {
-                        console.log(header, i);
-                        console.log(switching);
-                        
-                        
+
                         tbody.selectAll("tr").sort(function (a, b) {
                             if (switching === true) {
                                 return d3.ascending(a[header], b[header]);
                             } else if (switching === false) {
                                 return d3.descending(a[header], b[header]);
                             }
-                            
+
                         });
                         switching = !switching;
                     });
@@ -88,7 +97,7 @@
 
                                 return row[Object.keys(row)[i]];
                             }
-                            
+
                         });
                     })
                     .enter()
