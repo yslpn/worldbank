@@ -40,32 +40,67 @@
 
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script>
-        const myTable = ["name", "continent", "gdp", "life_expectancy", "population", "year"];
+
+        const myColumns = ["name", "continent", "gdp", "life_expectancy", "population", "year"];
+        const filterTitles = ['Americas', 'Africa', 'Asia', 'Europe', 'Oceania'];
+        let continentFilter = filterTitles;
+        var isAgregated = false;
+        let switching = true;
 
         fetch('https://yslpn.github.io/worldbank-data/countries_2012.json')
             .then(x => x.json())
             .then((data) => {
 
-                const table = d3.select("body").append("table"),
+                let filterController = d3.select('body').append('ul')
+                    .attr('class', 'controller-row')
+                    .text('Filter by:').selectAll('li')
+                    .data(filterTitles).enter().append("li");
+
+                filterController.append('input').attr('type', 'checkbox').property('checked', true)
+                    .attr('id', function (d) { return 'checkbox-' + d.toLowerCase(); })
+                    .attr('name', function (d) { return d; })
+                    .attr('value', function (d) { return d; })
+                    .on('change', function (value) {
+                        if (this.checked) {
+                            continentFilter.push(value);
+                        } else {
+                            let index = continentFilter.indexOf(value);
+                            if (index !== -1) {
+                                continentFilter.splice(index, 1);
+                            }
+                        }
+                        // tbody.selectAll('tr.row').remove();
+                        d3.selectAll('tr.row').each(function (d,i) {
+                            if (continentFilter.indexOf(d['continent']) === -1) {
+                                
+                                this.remove();
+                            } else {
+                                // ДОДЕЛАТЬ!
+                            }
+                        });
+                    });
+
+                filterController.append("label")
+                    .attr('for', function (d) { return 'checkbox-' + d.toLowerCase(); })
+                    .text(function (d) { return d; });
+
+                let table = d3.select("body").append("table"),
                     thead = table.append("thead")
                         .attr("class", "thead");
                 tbody = table.append("tbody");
-
-                let switching = true;
 
                 table.append("caption")
                     .html("World Countries Ranking");
 
                 thead.append("tr").selectAll("th")
-                    .data(myTable)
+                    .attr('class', 'row')
+                    .data(myColumns)
                     .enter()
                     .append("th")
                     .text(function (d) {
                         return d;
                     })
                     .on("click", function (header, i) {
-                        console.log(header);
-
                         tbody.selectAll("tr").sort(function (a, b) {
                             if (switching === true) {
                                 return d3.ascending(a[header], b[header]);
@@ -83,23 +118,24 @@
 
                 let cells = rows.selectAll("td")
                     .data(function (row) {
+                 
+                        return d3.range(myColumns.length).map(function (column, i) {
+                            
+                            if (myColumns.indexOf(myColumns[i]) != -1) {
 
-                        return d3.range(myTable.length).map(function (column, i) {
-                            if (myTable.indexOf(myTable[i]) != -1) {
-
-                                if (myTable[i] === "life_expectancy") {
-                                    return Math.ceil(row[myTable[i]]);
-                                } else if (myTable[i] === "gdp") {
-                                    if (row[myTable[i]] > 1000000000000) {
-                                        return Math.round(row[myTable[i]] / 1000000000000) + "T";
+                                if (myColumns[i] === "life_expectancy") {
+                                    return Math.ceil(row[myColumns[i]]);
+                                } else if (myColumns[i] === "gdp") {
+                                    if (row[myColumns[i]] > 1000000000000) {
+                                        return Math.round(row[myColumns[i]] / 1000000000000) + "T";
                                     } else {
-                                        return Math.round(row[myTable[i]] / 1000000000) + "G";
+                                        return Math.round(row[myColumns[i]] / 1000000000) + "G";
                                     }
-                                } else if (myTable[i] === "population") {
-                                    return row[myTable[i]].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                } else if (myColumns[i] === "population") {
+                                    return row[myColumns[i]].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                                 }
 
-                                return row[myTable[i]];
+                                return row[myColumns[i]];
                             }
                         });
                     })
